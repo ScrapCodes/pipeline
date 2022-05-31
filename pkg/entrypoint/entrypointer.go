@@ -199,11 +199,16 @@ func (e Entrypointer) Go() error {
 			ctx, cancel = context.WithTimeout(ctx, *e.Timeout)
 			defer cancel()
 		}
-		replacedStrings := make([]string, len(e.Command) + 1)
+		replacedStrings := make([]string, len(e.Command))
 		for i, s := range e.Command {
+			splittedCommand := strings.Split(s, " ")
+			replacedStrings1 := make([]string, len(splittedCommand))
 			logger.Infof("check string: %s", s)
-			replacedStrings[i], err = e.prefetchFilesWithLink(logger, s)
-			logger.Infof("error while prefetching..", err)
+			for j, s1 := range splittedCommand {
+				replacedStrings1[j], err = e.prefetchFilesWithLink(logger, s1)
+				logger.Infof("error while prefetching..", err)
+			}
+			replacedStrings[i] = strings.Join(replacedStrings1, " ")
 		}
 		logger.Infof("Running command: %s", strings.Join(replacedStrings, " "))
 		err = e.Runner.Run(ctx, replacedStrings...)
@@ -291,6 +296,7 @@ func (e Entrypointer) prefetchFilesWithLink(logger *zap.SugaredLogger, str1 stri
 		}
 		return fileName, nil
 	} else {
+		logger.Infof("Not matched : %s", str1)
 		return str1, nil
 	}
 }
