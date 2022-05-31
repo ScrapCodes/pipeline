@@ -52,7 +52,7 @@ const (
 
 // Constants for IBM COS values
 const (
-	apiKey            = ""
+	apiKey            = "SjF_XmZQGdI4n6xFG8Ay_psKfyvELEaBgHX2uiQIgvt6"
 	serviceInstanceID = "crn:v1:bluemix:public:cloud-object-storage:global:a/9b13b857a32341b7167255de717172f5:8fbc0235-1bed-48b8-a3f2-81f2b8d1a7b4::"
 	authEndpoint      = "https://iam.cloud.ibm.com/identity/token"
 	serviceEndpoint   = "https://s3.us-south.cloud-object-storage.appdomain.cloud"
@@ -199,8 +199,9 @@ func (e Entrypointer) Go() error {
 			ctx, cancel = context.WithTimeout(ctx, *e.Timeout)
 			defer cancel()
 		}
-		replacedStrings := make([]string, len(e.Command))
+		replacedStrings := make([]string, len(e.Command) + 1)
 		for i, s := range e.Command {
+			logger.Infof("check string: %s", s)
 			replacedStrings[i], err = e.prefetchFilesWithLink(logger, s)
 			logger.Infof("error while prefetching..", err)
 		}
