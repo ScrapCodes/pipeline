@@ -6,7 +6,7 @@ metadata:
 spec:
   resources:
     requests:
-      storage: 32Mi
+      storage: 32M
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -20,14 +20,16 @@ spec:
     - name: result-storages
   results:
     - name: text
-      type: reference
+      # The result type is reference, so it will use workspace to store its contents.
+      isRef: "yes"
       description: large randomly generated string
   steps:
     - name: add
       image: alpine
       command: ["/bin/sh", "-c"]
+      # Generate a very large amount of data(~6MB) to result named text of type reference.
       args:
-        - cat /dev/urandom | base64 | head -c 4096 | tee $(results.text.path);
+        - cat /dev/urandom | base64 | head -c 6000000 | tee $(results.text.path);
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -44,7 +46,7 @@ spec:
   results:
     - name: concatenated-text
       description: concatenate strings
-      type: reference
+      isRef: "yes"
   steps:
     - name: concat
       image: alpine
@@ -87,7 +89,7 @@ spec:
           workspace: shared-data
   results:
     - name: sum
-      type: reference
+      isRef: "yes"
       description: the concat of all texts
       value: $(tasks.third-task.results.concatenated-text)
   workspaces:

@@ -132,6 +132,7 @@ type PipelineResourceResult struct {
 	Value        string     `json:"value"`
 	ResourceName string     `json:"resourceName,omitempty"`
 	ResultType   ResultType `json:"type,omitempty"`
+	IsRef        bool       `json:"isRef,omitempty"` // IsRef is false unless set.
 }
 
 // ResultType used to find out whether a PipelineResourceResult is from a task result or not

@@ -32,6 +32,7 @@ type ResolvedResultRefs []*ResolvedResultRef
 // which resulted in the value
 type ResolvedResultRef struct {
 	Value           v1beta1.ResultValue
+	IsRef           bool
 	ResultReference v1beta1.ResultRef
 	FromTaskRun     string
 	FromRun         string

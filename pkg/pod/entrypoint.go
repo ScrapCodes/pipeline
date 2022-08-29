@@ -201,7 +201,7 @@ func referenceTypeResultArgument(steps []corev1.Container, results []v1beta1.Tas
 	}
 	resultNames := make([]string, len(results))
 	for _, r := range results {
-		if r.Type == v1beta1.ResultsTypeReference && r.Name != "" {
+		if r.IsRef == "yes" && r.Name != "" {
 			resultNames = append(resultNames, r.Name)
 		}
 	}
@@ -221,7 +221,7 @@ func resultArgument(steps []corev1.Container, results []v1beta1.TaskResult) []st
 func collectResultsName(results []v1beta1.TaskResult) string {
 	var resultNames []string
 	for _, r := range results {
-		if r.Type != v1beta1.ResultsTypeReference { // Ref type results are passed separately.
+		if r.IsRef == "yes" { // Referenced results are passed separately.
 			resultNames = append(resultNames, r.Name)
 		}
 	}

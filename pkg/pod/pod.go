@@ -190,7 +190,10 @@ func (b *Builder) Build(ctx context.Context, taskRun *v1beta1.TaskRun, taskSpec 
 	}
 
 	readyImmediately := isPodReadyImmediately(*featureFlags, taskSpec.Sidecars)
-	resultWsDir := filepath.Join(pipeline.WorkspaceDir, taskRun.ObjectMeta.Annotations["ref-result-path"], taskRun.ObjectMeta.Name)
+	var resultWsDir string
+	if taskRun.ObjectMeta.Annotations["ref-result-path"] != "" {
+		resultWsDir = filepath.Join(pipeline.WorkspaceDir, taskRun.ObjectMeta.Annotations["ref-result-path"], taskRun.ObjectMeta.Name)
+	}
 	if alphaAPIEnabled {
 		stepContainers, err = orderContainers(credEntrypointArgs, stepContainers, &taskSpec, taskRun.Spec.Debug, resultWsDir, !readyImmediately)
 	} else {

@@ -25,6 +25,9 @@ type TaskResult struct {
 	// +optional
 	Type ResultsType `json:"type,omitempty"`
 
+	// Is this a referenced result.
+	IsRef ResultRefType `json:"isRef,omitempty"`
+
 	// Properties is the JSON Schema properties to support key-value pairs results.
 	// +optional
 	Properties map[string]PropertySpec `json:"properties,omitempty"`
@@ -44,6 +47,8 @@ type TaskRunResult struct {
 	// +optional
 	Type ResultsType `json:"type,omitempty"`
 
+	IsRef bool `json:"isRef,omitempty"`
+
 	// Value the given value of the result
 	Value ResultValue `json:"value"`
 }
@@ -60,14 +65,25 @@ type ResultsType string
 
 // Valid ResultsType:
 const (
-	ResultsTypeString    ResultsType = "string"
-	ResultsTypeArray     ResultsType = "array"
-	ResultsTypeObject    ResultsType = "object"
-	ResultsTypeReference ResultsType = "reference"
+	ResultsTypeString ResultsType = "string"
+	ResultsTypeArray  ResultsType = "array"
+	ResultsTypeObject ResultsType = "object"
 )
 
 // AllResultsTypes can be used for ResultsTypes validation.
-var AllResultsTypes = []ResultsType{ResultsTypeString, ResultsTypeArray, ResultsTypeObject, ResultsTypeReference}
+var AllResultsTypes = []ResultsType{ResultsTypeString, ResultsTypeArray, ResultsTypeObject}
+
+type ResultRefType string
+
+// Valid ResultsRefType:
+const (
+	ResultsRefTypeYes  ResultRefType = "yes"
+	ResultsRefTypeNo   ResultRefType = "no"
+	ResultsRefTypeAuto ResultRefType = "auto"
+)
+
+// AllResultsTypes can be used for ResultsTypes validation.
+var AllResultRefTypes = []ResultRefType{ResultsRefTypeYes, ResultsRefTypeNo, ResultsRefTypeAuto}
 
 // ResultsArrayReference returns the reference of the result. e.g. results.resultname from $(results.resultname[*])
 func ResultsArrayReference(a string) string {

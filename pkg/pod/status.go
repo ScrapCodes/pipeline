@@ -236,6 +236,7 @@ func filterResultsAndResources(results []v1beta1.PipelineResourceResult) ([]v1be
 				Name:  r.Key,
 				Type:  v1beta1.ResultsType(v.Type),
 				Value: v,
+				IsRef: r.IsRef,
 			}
 			taskResults = append(taskResults, taskRunResult)
 			filteredResults = append(filteredResults, r)
