@@ -773,6 +773,9 @@
         "value"
       ],
       "properties": {
+        "isRef": {
+          "type": "boolean"
+        },
         "key": {
           "type": "string",
           "default": ""
@@ -802,6 +805,10 @@
           "description": "Description is a human-readable description of the result",
           "type": "string",
           "default": ""
+        },
+        "isRef": {
+          "description": "Is this a referenced result.",
+          "type": "string"
         },
         "name": {
           "description": "Name the given name",
@@ -2285,6 +2292,10 @@
           "description": "Description is a human-readable description of the result",
           "type": "string"
         },
+        "isRef": {
+          "description": "Is this a referenced result.",
+          "type": "string"
+        },
         "name": {
           "description": "Name the given name",
           "type": "string",
@@ -2440,6 +2451,9 @@
         "value"
       ],
       "properties": {
+        "isRef": {
+          "type": "boolean"
+        },
         "name": {
           "description": "Name the given name",
           "type": "string",

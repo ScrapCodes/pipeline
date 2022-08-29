@@ -1253,6 +1253,12 @@ func schema_pkg_apis_pipeline_v1beta1_PipelineResourceResult(ref common.Referenc
 							Format: "int32",
 						},
 					},
+					"isRef": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
 				},
 				Required: []string{"key", "value"},
 			},
@@ -1278,6 +1284,13 @@ func schema_pkg_apis_pipeline_v1beta1_PipelineResult(ref common.ReferenceCallbac
 					"type": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Type is the user-specified type of the result. The possible types are 'string', 'array', and 'object', with 'string' as the default. 'array' and 'object' types are alpha features.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"isRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Is this a referenced result.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4048,6 +4061,13 @@ func schema_pkg_apis_pipeline_v1beta1_TaskResult(ref common.ReferenceCallback) c
 							Format:      "",
 						},
 					},
+					"isRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Is this a referenced result.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"properties": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Properties is the JSON Schema properties to support key-value pairs results.",
@@ -4364,6 +4384,12 @@ func schema_pkg_apis_pipeline_v1beta1_TaskRunResult(ref common.ReferenceCallback
 							Description: "Type is the user-specified type of the result. The possible type is currently \"string\" and will support \"array\" in following work.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"isRef": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
 						},
 					},
 					"value": {

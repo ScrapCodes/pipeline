@@ -133,6 +133,9 @@ type PipelineResult struct {
 	// 'array' and 'object' types are alpha features.
 	Type ResultsType `json:"type,omitempty"`
 
+	// Is this a referenced result.
+	IsRef ResultRefType `json:"isRef,omitempty"`
+
 	// Description is a human-readable description of the result
 	// +optional
 	Description string `json:"description"`

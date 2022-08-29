@@ -20,7 +20,7 @@ spec:
     - name: result-storages
   results:
     - name: text
-      # The result type is reference, so it will use workspace to store its contents.
+      # The result is reference, so it will use workspace to store its contents.
       isRef: "yes"
       description: large randomly generated string
   steps:
