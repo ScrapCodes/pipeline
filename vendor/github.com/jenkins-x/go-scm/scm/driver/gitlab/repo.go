@@ -38,6 +38,7 @@ type repository struct {
 	HTTPURL       string      `json:"http_url_to_repo"`
 	Namespace     namespace   `json:"namespace"`
 	Permissions   permissions `json:"permissions"`
+	CreatedAt     time.Time   `json:"created_at"`
 }
 
 type namespace struct {
@@ -122,7 +123,6 @@ type member struct {
 	// Fields to be figured out later
 	// expires_at - a yyyy-mm-dd date
 	// group_saml_identity
-
 }
 
 type repositoryService struct {
@@ -183,7 +183,7 @@ func (s *repositoryService) FindCombinedStatus(ctx context.Context, repo, ref st
 	var statusesByPage []*scm.Status
 	var err error
 	firstRun := false
-	opts := scm.ListOptions{
+	opts := &scm.ListOptions{
 		Page: 1,
 	}
 	for !firstRun || (resp != nil && opts.Page <= resp.Page.Last) {
@@ -216,11 +216,11 @@ func (s *repositoryService) FindUserPermission(ctx context.Context, repo, user s
 	var resp *scm.Response
 	var err error
 	firstRun := false
-	opts := scm.ListOptions{
+	opts := &scm.ListOptions{
 		Page: 1,
 	}
 	for !firstRun || (resp != nil && opts.Page <= resp.Page.Last) {
-		path := fmt.Sprintf("api/v4/projects/%s/members/all?%s", encode(repo), encodeListOptions(&opts))
+		path := fmt.Sprintf("api/v4/projects/%s/members/all?%s", encode(repo), encodeListOptions(opts))
 		out := []*member{}
 		resp, err = s.client.do(ctx, "GET", path, nil, &out)
 		if err != nil {
@@ -263,7 +263,7 @@ func (s *repositoryService) IsCollaborator(ctx context.Context, repo, user strin
 	var users []scm.User
 	var err error
 	firstRun := false
-	opts := scm.ListOptions{
+	opts := &scm.ListOptions{
 		Page: 1,
 	}
 	for !firstRun || (resp != nil && opts.Page <= resp.Page.Last) {
@@ -282,15 +282,15 @@ func (s *repositoryService) IsCollaborator(ctx context.Context, repo, user strin
 	return false, resp, err
 }
 
-func (s *repositoryService) ListCollaborators(ctx context.Context, repo string, ops scm.ListOptions) ([]scm.User, *scm.Response, error) {
-	path := fmt.Sprintf("api/v4/projects/%s/members/all?%s", encode(repo), encodeListOptions(&ops))
+func (s *repositoryService) ListCollaborators(ctx context.Context, repo string, opts *scm.ListOptions) ([]scm.User, *scm.Response, error) {
+	path := fmt.Sprintf("api/v4/projects/%s/members/all?%s", encode(repo), encodeListOptions(opts))
 	out := []*user{}
 	res, err := s.client.do(ctx, "GET", path, nil, &out)
 	return convertUserList(out), res, err
 }
 
-func (s *repositoryService) ListLabels(ctx context.Context, repo string, opts scm.ListOptions) ([]*scm.Label, *scm.Response, error) {
-	path := fmt.Sprintf("api/v4/projects/%s/labels?%s", encode(repo), encodeListOptions(&opts))
+func (s *repositoryService) ListLabels(ctx context.Context, repo string, opts *scm.ListOptions) ([]*scm.Label, *scm.Response, error) {
+	path := fmt.Sprintf("api/v4/projects/%s/labels?%s", encode(repo), encodeListOptions(opts))
 	out := []*label{}
 	res, err := s.client.do(ctx, "GET", path, nil, &out)
 	return convertLabelObjects(out), res, err
@@ -317,30 +317,30 @@ func (s *repositoryService) FindPerms(ctx context.Context, repo string) (*scm.Pe
 	return convertRepository(out).Perm, res, err
 }
 
-func (s *repositoryService) List(ctx context.Context, opts scm.ListOptions) ([]*scm.Repository, *scm.Response, error) {
+func (s *repositoryService) List(ctx context.Context, opts *scm.ListOptions) ([]*scm.Repository, *scm.Response, error) {
 	path := fmt.Sprintf("api/v4/projects?%s", encodeMemberListOptions(opts))
 	out := []*repository{}
 	res, err := s.client.do(ctx, "GET", path, nil, &out)
 	return convertRepositoryList(out), res, err
 }
 
-func (s *repositoryService) ListOrganisation(context.Context, string, scm.ListOptions) ([]*scm.Repository, *scm.Response, error) {
+func (s *repositoryService) ListOrganisation(context.Context, string, *scm.ListOptions) ([]*scm.Repository, *scm.Response, error) {
 	return nil, nil, scm.ErrNotSupported
 }
 
-func (s *repositoryService) ListUser(context.Context, string, scm.ListOptions) ([]*scm.Repository, *scm.Response, error) {
+func (s *repositoryService) ListUser(context.Context, string, *scm.ListOptions) ([]*scm.Repository, *scm.Response, error) {
 	return nil, nil, scm.ErrNotSupported
 }
 
-func (s *repositoryService) ListHooks(ctx context.Context, repo string, opts scm.ListOptions) ([]*scm.Hook, *scm.Response, error) {
-	path := fmt.Sprintf("api/v4/projects/%s/hooks?%s", encode(repo), encodeListOptions(&opts))
+func (s *repositoryService) ListHooks(ctx context.Context, repo string, opts *scm.ListOptions) ([]*scm.Hook, *scm.Response, error) {
+	path := fmt.Sprintf("api/v4/projects/%s/hooks?%s", encode(repo), encodeListOptions(opts))
 	out := []*hook{}
 	res, err := s.client.do(ctx, "GET", path, nil, &out)
 	return convertHookList(out), res, err
 }
 
-func (s *repositoryService) ListStatus(ctx context.Context, repo, ref string, opts scm.ListOptions) ([]*scm.Status, *scm.Response, error) {
-	path := fmt.Sprintf("api/v4/projects/%s/repository/commits/%s/statuses?%s", encode(repo), ref, encodeListOptions(&opts))
+func (s *repositoryService) ListStatus(ctx context.Context, repo, ref string, opts *scm.ListOptions) ([]*scm.Status, *scm.Response, error) {
+	path := fmt.Sprintf("api/v4/projects/%s/repository/commits/%s/statuses?%s", encode(repo), ref, encodeListOptions(opts))
 	out := []*status{}
 	res, err := s.client.do(ctx, "GET", path, nil, &out)
 	return convertStatusList(out), res, err
@@ -460,8 +460,10 @@ func (s *repositoryService) DeleteHook(ctx context.Context, repo, id string) (*s
 	return s.client.do(ctx, "DELETE", path, nil, nil)
 }
 
-func (s *repositoryService) Delete(context.Context, string) (*scm.Response, error) {
-	return nil, scm.ErrNotSupported
+// Delete a given repo by 'name' or 'namespace/name'
+func (s *repositoryService) Delete(ctx context.Context, repo string) (*scm.Response, error) {
+	path := fmt.Sprintf("api/v4/projects/%s", encode(repo))
+	return s.client.do(ctx, "DELETE", path, nil, nil)
 }
 
 // helper function to convert from the gogs repository list to
@@ -494,6 +496,7 @@ func convertRepository(from *repository) *scm.Repository {
 		Clone:     from.HTTPURL,
 		CloneSSH:  from.SSHURL,
 		Link:      from.WebURL,
+		Created:   from.CreatedAt,
 		Perm: &scm.Perm{
 			Pull:  true,
 			Push:  canPush(from),
