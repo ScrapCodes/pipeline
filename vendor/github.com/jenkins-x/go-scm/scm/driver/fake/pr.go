@@ -119,9 +119,10 @@ func filterPullRequests(requests []*scm.PullRequest, opts *scm.PullRequestListOp
 		filteredPullRequests = newFilteredPullRequests
 	}
 
-	if len(opts.Labels) > 0 {
-		panic("implement me")
-	}
+	// Filtering on labels is not implemented in all real providers either...
+	// if len(opts.Labels) > 0 {
+	// 	panic("implement me")
+	// }
 
 	returnRequests := []*scm.PullRequest{}
 
@@ -132,18 +133,22 @@ func filterPullRequests(requests []*scm.PullRequest, opts *scm.PullRequestListOp
 	return returnRequests
 }
 
-func (s *pullService) ListChanges(ctx context.Context, repo string, number int, opts scm.ListOptions) ([]*scm.Change, *scm.Response, error) {
+func (s *pullService) ListChanges(ctx context.Context, repo string, number int, opts *scm.ListOptions) ([]*scm.Change, *scm.Response, error) {
 	f := s.data
 	returnStart, returnEnd := paginated(opts.Page, opts.Size, len(f.PullRequestChanges[number]))
 	return f.PullRequestChanges[number][returnStart:returnEnd], nil, nil
 }
 
-func (s *pullService) ListComments(ctx context.Context, repo string, number int, opts scm.ListOptions) ([]*scm.Comment, *scm.Response, error) {
+func (s *pullService) ListCommits(ctx context.Context, repo string, number int, opts *scm.ListOptions) ([]*scm.Commit, *scm.Response, error) {
+	return nil, nil, scm.ErrNotSupported
+}
+
+func (s *pullService) ListComments(ctx context.Context, repo string, number int, opts *scm.ListOptions) ([]*scm.Comment, *scm.Response, error) {
 	f := s.data
 	return append([]*scm.Comment{}, f.PullRequestComments[number]...), nil, nil
 }
 
-func (s *pullService) ListLabels(ctx context.Context, repo string, number int, opts scm.ListOptions) ([]*scm.Label, *scm.Response, error) {
+func (s *pullService) ListLabels(ctx context.Context, repo string, number int, opts *scm.ListOptions) ([]*scm.Label, *scm.Response, error) {
 	f := s.data
 	re := regexp.MustCompile(fmt.Sprintf(`^%s#%d:(.*)$`, repo, number))
 	la := []*scm.Label{}
@@ -159,7 +164,7 @@ func (s *pullService) ListLabels(ctx context.Context, repo string, number int, o
 	return la, nil, nil
 }
 
-func (s *pullService) ListEvents(context.Context, string, int, scm.ListOptions) ([]*scm.ListedIssueEvent, *scm.Response, error) {
+func (s *pullService) ListEvents(context.Context, string, int, *scm.ListOptions) ([]*scm.ListedIssueEvent, *scm.Response, error) {
 	return nil, nil, scm.ErrNotSupported
 }
 
@@ -251,8 +256,14 @@ func (s *pullService) Update(_ context.Context, fullName string, number int, inp
 	return answer, nil, nil
 }
 
-func (s *pullService) Close(context.Context, string, int) (*scm.Response, error) {
-	panic("implement me")
+func (s *pullService) Close(_ context.Context, fullName string, number int) (*scm.Response, error) {
+	pr, ok := s.data.PullRequests[number]
+	if !ok || pr == nil {
+		return nil, fmt.Errorf("pull request %d not found", number)
+	}
+	pr.State = "closed"
+	pr.Closed = true
+	return nil, nil
 }
 
 func (s *pullService) Reopen(context.Context, string, int) (*scm.Response, error) {
@@ -347,6 +358,8 @@ func (s *pullService) Create(_ context.Context, fullName string, input *scm.Pull
 				FullName:  fullName,
 			},
 		},
+		Source: input.Head,
+		Link:   fmt.Sprintf("https://api.fake.com/pull/%d", f.PullRequestID),
 		Head: scm.PullRequestBranch{
 			Ref: input.Head,
 		},

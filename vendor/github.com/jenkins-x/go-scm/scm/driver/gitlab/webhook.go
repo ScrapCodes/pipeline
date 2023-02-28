@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -30,7 +29,7 @@ type webhookUserService interface {
 }
 
 func (s *webhookService) Parse(req *http.Request, fn scm.SecretFunc) (scm.Webhook, error) {
-	data, err := ioutil.ReadAll(
+	data, err := io.ReadAll(
 		io.LimitReader(req.Body, 10000000),
 	)
 	if err != nil {
@@ -321,14 +320,13 @@ func convertIssueCommentHook(s *webhookService, src *commentHook) (*scm.IssueCom
 	updatedAt, _ := time.Parse("2006-01-02 15:04:05 MST", src.ObjectAttributes.UpdatedAt)
 
 	issue := scm.Issue{
-		Number:      src.Issue.Iid,
-		Title:       src.Issue.Title,
-		Body:        src.Issue.Description,
-		Author:      *commentAuthor,
-		Created:     createdAt,
-		Updated:     updatedAt,
-		Closed:      src.Issue.State != "opened",
-		PullRequest: false,
+		Number:  src.Issue.Iid,
+		Title:   src.Issue.Title,
+		Body:    src.Issue.Description,
+		Author:  *commentAuthor,
+		Created: createdAt,
+		Updated: updatedAt,
+		Closed:  src.Issue.State != "opened",
 	}
 
 	hook := &scm.IssueCommentHook{
@@ -615,7 +613,7 @@ type (
 			MergeCommitSha string      `json:"merge_commit_sha"`
 			MergeError     interface{} `json:"merge_error"`
 			MergeParams    struct {
-				ForceRemoveSourceBranch string `json:"force_remove_source_branch"`
+				ForceRemoveSourceBranch interface{} `json:"force_remove_source_branch"`
 			} `json:"merge_params"`
 			MergeStatus               string      `json:"merge_status"`
 			MergeUserID               interface{} `json:"merge_user_id"`
@@ -700,7 +698,7 @@ type (
 			MergeCommitSha string      `json:"merge_commit_sha"`
 			MergeError     interface{} `json:"merge_error"`
 			MergeParams    struct {
-				ForceRemoveSourceBranch string `json:"force_remove_source_branch"`
+				ForceRemoveSourceBranch interface{} `json:"force_remove_source_branch"`
 			} `json:"merge_params"`
 			MergeStatus               string      `json:"merge_status"`
 			MergeUserID               interface{} `json:"merge_user_id"`
